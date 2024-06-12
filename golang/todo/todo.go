@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
+	"time"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
@@ -18,21 +20,55 @@ func main() {
 	myApp := app.New()
 	myWindow := myApp.NewWindow("Todo List")
 
-	list := widget.NewLabel("List")
-	value := widget.NewLabel(string(data[:]))
-	grid := container.New(layout.NewFormLayout(), list, value)
+	clock := widget.NewLabel("")
+	updateTime(clock)
 
-	myWindow.SetMainMenu(fyne.NewMainMenu(
-		fyne.NewMenu("File", fyne.NewMenuItem("Sync...", func() {}))))
+	myWindow.SetContent(clock)
+	go func() {
+		for range time.Tick(time.Minute) {
+			updateTime(clock)
+		}
+	}()
 
-	myWindow.SetContent(grid)
+	entry := widget.NewEntry()
+
+	form := &widget.Form{
+		Items: []*widget.FormItem{ // we can specify items in the constructor
+			{Text: "", Widget: entry}},
+		OnSubmit: func() { // optional, handle form submission
+			log.Println("Form submitted:", entry.Text)
+			appendToList(entry.Text)
+			data = readFile()
+		},
+	}
+
+	list := widget.NewList(
+		func() int {
+			return len(data)
+		},
+		func() fyne.CanvasObject {
+			return widget.NewLabel("template")
+		},
+		func(i widget.ListItemID, o fyne.CanvasObject) {
+			o.(*widget.Label).SetText(data[i])
+		})
+
+	content := container.New(layout.NewHBoxLayout(), list, layout.NewSpacer(), clock)
+	myWindow.SetContent(container.New(layout.NewVBoxLayout(), content, form))
+
 	myWindow.Resize(fyne.NewSize(500, 320))
-	myWindow.ShowAndRun()
-
+	myWindow.Show()
+	myApp.Run()
 	tidyUp()
+
 }
 
-func readFile() []byte {
+func updateTime(clock *widget.Label) {
+	formatted := time.Now().Format("2006-01-02 15:04")
+	clock.SetText(formatted)
+}
+
+func readFile() []string {
 	file, err := os.Open("list.txt")
 	if err != nil {
 		log.Fatal(err)
@@ -41,8 +77,14 @@ func readFile() []byte {
 	defer file.Close()
 
 	data := make([]byte, 1024)
-	file.Read(data)
-	return data
+	_, err = file.Read(data)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	strArray := strings.Split(string(data), "\n")
+
+	return strArray
 }
 
 func appendToList(s string) {
@@ -56,6 +98,16 @@ func appendToList(s string) {
 	if _, err = file.WriteString("\n" + s); err != nil {
 		panic(err)
 	}
+}
+
+func removeFromList(s string) bool {
+	//TODO
+	//go through each line
+	//find if s is in file
+	//remove it if it is
+	//return bool from result of the operation
+
+	return false
 }
 
 func tidyUp() {
