@@ -10,13 +10,11 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
-	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 )
 
 func main() {
 	data := readFile()
-
 	myApp := app.New()
 	myWindow := myApp.NewWindow("Todo List")
 
@@ -32,16 +30,6 @@ func main() {
 
 	entry := widget.NewEntry()
 
-	form := &widget.Form{
-		Items: []*widget.FormItem{ // we can specify items in the constructor
-			{Text: "", Widget: entry}},
-		OnSubmit: func() { // optional, handle form submission
-			log.Println("Form submitted:", entry.Text)
-			appendToList(entry.Text)
-			data = readFile()
-		},
-	}
-
 	list := widget.NewList(
 		func() int {
 			return len(data)
@@ -53,14 +41,30 @@ func main() {
 			o.(*widget.Label).SetText(data[i])
 		})
 
-	content := container.New(layout.NewHBoxLayout(), list, layout.NewSpacer(), clock)
-	myWindow.SetContent(container.New(layout.NewVBoxLayout(), content, form))
+	add := widget.NewButton("Delete", func() {
+		removeFromList("123", data)
+	})
+
+	form := &widget.Form{
+		Items: []*widget.FormItem{ // we can specify items in the constructor
+			{Text: "", Widget: entry},
+		},
+		OnSubmit: func() { // optional, handle form submission
+			if entry.Text != "" {
+				log.Println("Form submitted:", entry.Text)
+				appendToList(entry.Text)
+				data = readFile()
+				list.Refresh()
+			}
+		},
+	}
+
+	myWindow.SetContent(container.NewBorder(nil, form, nil, add, list))
 
 	myWindow.Resize(fyne.NewSize(500, 320))
 	myWindow.Show()
 	myApp.Run()
 	tidyUp()
-
 }
 
 func updateTime(clock *widget.Label) {
@@ -100,12 +104,33 @@ func appendToList(s string) {
 	}
 }
 
-func removeFromList(s string) bool {
+func removeFromList(s string, data []string) bool {
 	//TODO
 	//go through each line
 	//find if s is in file
 	//remove it if it is
 	//return bool from result of the operation
+
+	newData := data
+	for i, e := range data {
+		if e == s {
+			newData = append(data[:i], data[i+1:]...)
+
+			file, err := os.Create("list.txt")
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			defer file.Close()
+			for _, d := range newData {
+				file.Write([]byte(d))
+				file.WriteString("\n")
+				fmt.Println(d)
+			}
+
+			return true
+		}
+	}
 
 	return false
 }
