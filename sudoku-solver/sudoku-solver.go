@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 )
 
 type SudokuBoard struct {
@@ -56,12 +57,10 @@ func (sb *SudokuBoard) returnFirstZero() (int, int) {
 	for i := 0; i < 9; i++ {
 		for n := 0; n < 9; n++ {
 			if sb.board[i][n] == 0 {
-				//log.Print("returnFirstZero: ", i, n)
 				return i, n
 			}
 		}
 	}
-	//log.Print("returnFirstZero: false")
 	return 0, 0
 }
 
@@ -69,11 +68,10 @@ func (sb *SudokuBoard) checkPossibleNumber(number int, x int, y int) bool {
 
 	for i := 0; i < 9; i++ {
 		if sb.board[x][i] == number {
-			//log.Print("checkPossibleNumber: false", number)
 			return false
 		}
+
 		if sb.board[i][y] == number {
-			//log.Print("checkPossibleNumber: false", number)
 			return false
 		}
 	}
@@ -84,24 +82,31 @@ func (sb *SudokuBoard) checkPossibleNumber(number int, x int, y int) bool {
 	for i := 0; i < 3; i++ {
 		for n := 0; n < 3; n++ {
 			if sb.board[xx+i][yy+n] == number {
-				//log.Print("checkPossibleNumber: false", number)
 				return false
 			}
 		}
 	}
-	//log.Print("checkPossibleNumber: true", number)
 	return true
 }
 
-func (sb *SudokuBoard) findNumber() {
-
+func (sb *SudokuBoard) findSolution() {
 	if sb.checkForZeros() {
-		fmt.Print("Zeros detected")
+		x, y := sb.returnFirstZero()
 
-	} else if sb.isSolved() {
-		fmt.Print("Sudoku puzzle is solved!!")
+		for i := 1; i < 10; i++ {
+			if sb.checkPossibleNumber(i, x, y) {
+				sb.board[x][y] = i
+				sb.findSolution()
+				sb.board[x][y] = 0
+			}
+		}
+		return
 	}
 
+	if sb.isSolved() {
+		log.Print("Sudoku puzzle is solved!!")
+		sb.printBoard()
+	}
 }
 
 func (sb *SudokuBoard) isSolved() bool {
@@ -144,5 +149,5 @@ func (sb *SudokuBoard) isSolved() bool {
 
 func main() {
 	board := newSudokuBoard()
-	board.findNumber()
+	board.findSolution()
 }
