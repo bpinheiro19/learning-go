@@ -11,6 +11,7 @@ type SudokuBoard struct {
 func newSudokuBoard() *SudokuBoard {
 	board := &SudokuBoard{}
 	board.initBoard()
+	board.printBoard()
 	return board
 }
 
@@ -34,10 +35,10 @@ func (sb *SudokuBoard) printBoard() {
 		for n := 0; n < 9; n++ {
 			fmt.Print(" | ")
 			fmt.Print(sb.board[i][n])
-
 		}
 		fmt.Println(" | ")
 	}
+	fmt.Println(" ------------------------------------- ")
 }
 
 func (sb *SudokuBoard) checkForZeros() bool {
@@ -49,6 +50,47 @@ func (sb *SudokuBoard) checkForZeros() bool {
 		}
 	}
 	return false
+}
+
+func (sb *SudokuBoard) returnFirstZero() (int, int) {
+	for i := 0; i < 9; i++ {
+		for n := 0; n < 9; n++ {
+			if sb.board[i][n] == 0 {
+				//log.Print("returnFirstZero: ", i, n)
+				return i, n
+			}
+		}
+	}
+	//log.Print("returnFirstZero: false")
+	return 0, 0
+}
+
+func (sb *SudokuBoard) checkPossibleNumber(number int, x int, y int) bool {
+
+	for i := 0; i < 9; i++ {
+		if sb.board[x][i] == number {
+			//log.Print("checkPossibleNumber: false", number)
+			return false
+		}
+		if sb.board[i][y] == number {
+			//log.Print("checkPossibleNumber: false", number)
+			return false
+		}
+	}
+
+	xx := x - x%3
+	yy := y - y%3
+
+	for i := 0; i < 3; i++ {
+		for n := 0; n < 3; n++ {
+			if sb.board[xx+i][yy+n] == number {
+				//log.Print("checkPossibleNumber: false", number)
+				return false
+			}
+		}
+	}
+	//log.Print("checkPossibleNumber: true", number)
+	return true
 }
 
 func (sb *SudokuBoard) findNumber() {
@@ -102,7 +144,5 @@ func (sb *SudokuBoard) isSolved() bool {
 
 func main() {
 	board := newSudokuBoard()
-	//board.printBoard()
-	fmt.Print("solved: ", board.isSolved())
-	//slices.Contains(board.board[8], 0)
+	board.findNumber()
 }
