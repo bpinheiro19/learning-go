@@ -18,16 +18,28 @@ type Tile struct {
 }
 
 const (
-	ScreenWidth  = 600
-	ScreenHeight = 600
+	ScreenWidth  = 700
+	ScreenHeight = 700
 	boardSize    = 4
 
-	tileSize   = 55
-	tileMargin = 4
+	tileSize    = 150
+	tileMargin  = 160
+	tileSpacing = 35
 )
 
 var (
-	backgroundColor = color.RGBA{0xbb, 0xad, 0xa0, 0xff}
+	BACKGROUND_COLOR = color.RGBA{207, 195, 176, 0xff}
+	COLOR2           = color.RGBA{245, 230, 200, 0xff}
+	COLOR4           = color.RGBA{245, 220, 175, 0xff}
+	COLOR8           = color.RGBA{245, 210, 160, 0xff}
+	COLOR16          = color.RGBA{245, 200, 145, 0xff}
+	COLOR32          = color.RGBA{245, 190, 130, 0xff}
+	COLOR64          = color.RGBA{245, 180, 115, 0xff}
+	COLOR128         = color.RGBA{245, 140, 100, 0xff}
+	COLOR256         = color.RGBA{245, 130, 85, 0xff}
+	COLOR512         = color.RGBA{245, 110, 70, 0xff}
+	COLOR1024        = color.RGBA{245, 80, 55, 0xff}
+	COLOR2048        = color.RGBA{245, 60, 40, 0xff}
 )
 
 func (g *Game) Update() error {
@@ -35,15 +47,16 @@ func (g *Game) Update() error {
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	screen.Fill(backgroundColor)
+	screen.Fill(BACKGROUND_COLOR)
 
-	for n := 0; n < 9; n++ {
-		for i := 0; i < 9; i++ {
+	for n := 0; n < boardSize; n++ {
+		for i := 0; i < boardSize; i++ {
 			tile := ebiten.NewImage(tileSize, tileSize)
-			tile.Fill(color.White)
+			tile.Fill(COLOR2)
 			op := &ebiten.DrawImageOptions{}
-			op.GeoM.Translate(float64(i*60+30), float64(n*60+10))
+			op.GeoM.Translate(float64(i*tileMargin+tileSpacing), float64(n*tileMargin+tileSpacing))
 			screen.DrawImage(tile, op)
+
 		}
 	}
 
