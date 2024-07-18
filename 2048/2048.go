@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bytes"
+	"fmt"
 	"image/color"
 	"log"
 
@@ -8,7 +10,7 @@ import (
 )
 
 type Game struct {
-	board []Tile
+	tiles []Tile
 }
 
 type Tile struct {
@@ -24,7 +26,7 @@ const (
 
 	tileSize    = 150
 	tileMargin  = 160
-	tileSpacing = 35
+	tileSpacing = 50
 )
 
 var (
@@ -49,14 +51,37 @@ func (g *Game) Update() error {
 func (g *Game) Draw(screen *ebiten.Image) {
 	screen.Fill(BACKGROUND_COLOR)
 
+	for i := 0; i < boardSize+1; i++ {
 	for n := 0; n < boardSize; n++ {
-		for i := 0; i < boardSize; i++ {
-			tile := ebiten.NewImage(tileSize, tileSize)
-			tile.Fill(COLOR2)
+			line := ebiten.NewImage(3, 153)
+			line.Fill(color.Black)
 			op := &ebiten.DrawImageOptions{}
-			op.GeoM.Translate(float64(i*tileMargin+tileSpacing), float64(n*tileMargin+tileSpacing))
-			screen.DrawImage(tile, op)
+			op.GeoM.Translate(float64(i*tileSize+tileSpacing), float64(n*tileSize+tileSpacing))
+			screen.DrawImage(line, op)
 
+		}
+	}
+
+	for i := 0; i < boardSize; i++ {
+		for n := 0; n < boardSize+1; n++ {
+			line := ebiten.NewImage(150, 3)
+			line.Fill(color.Black)
+			op := &ebiten.DrawImageOptions{}
+			op.GeoM.Translate(float64(i*tileSize+tileSpacing), float64(n*tileSize+tileSpacing))
+			screen.DrawImage(line, op)
+		}
+	}
+
+	for i := 0; i < boardSize; i++ {
+		for n := 0; n < boardSize; n++ {
+			if g.tiles[i+n].value != 0 {
+				tile := ebiten.NewImage(tileSize-4, tileSize-4)
+				tile.Fill(COLOR2)
+				op := &ebiten.DrawImageOptions{}
+				op.GeoM.Translate(float64(i*tileSize+tileSpacing+3), float64(n*tileSize+tileSpacing+3))
+				screen.DrawImage(tile, op)
+
+			}
 		}
 	}
 
