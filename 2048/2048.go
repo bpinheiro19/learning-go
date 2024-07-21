@@ -13,13 +13,7 @@ import (
 )
 
 type Game struct {
-	tiles []Tile
-}
-
-type Tile struct {
-	value int
-	x     int
-	y     int
+	tiles [][]Tile
 }
 
 const (
@@ -35,19 +29,6 @@ const (
 )
 
 var (
-	BACKGROUND_COLOR = color.RGBA{207, 195, 176, 0xff}
-	COLOR2           = color.RGBA{245, 230, 200, 0xff}
-	COLOR4           = color.RGBA{245, 220, 175, 0xff}
-	COLOR8           = color.RGBA{245, 210, 160, 0xff}
-	COLOR16          = color.RGBA{245, 200, 145, 0xff}
-	COLOR32          = color.RGBA{245, 190, 130, 0xff}
-	COLOR64          = color.RGBA{245, 180, 115, 0xff}
-	COLOR128         = color.RGBA{245, 140, 100, 0xff}
-	COLOR256         = color.RGBA{245, 130, 85, 0xff}
-	COLOR512         = color.RGBA{245, 110, 70, 0xff}
-	COLOR1024        = color.RGBA{245, 80, 55, 0xff}
-	COLOR2048        = color.RGBA{245, 60, 40, 0xff}
-
 	mplusFaceSource *text.GoTextFaceSource
 )
 
@@ -68,12 +49,14 @@ func (g *Game) init() {
 }
 
 func (g *Game) initBoard() {
-	g.tiles = make([]Tile, 16)
+	g.tiles = make([][]Tile, 4)
+
 	for i := 0; i < boardSize; i++ {
+		tls := make([]Tile, 4)
 		for n := 0; n < boardSize; n++ {
-			t := Tile{value: 2, x: i, y: n}
-			g.tiles[i+n] = t
+			tls[n] = Tile{value: 2, x: i, y: n}
 		}
+		g.tiles[i] = tls
 	}
 }
 
@@ -83,7 +66,7 @@ func (g *Game) printBoard() {
 	for i := 0; i < boardSize; i++ {
 		for n := 0; n < boardSize; n++ {
 			fmt.Print(" | ")
-			fmt.Print(g.tiles[i+n].value)
+			fmt.Print(g.tiles[i][n].value)
 
 		}
 		fmt.Println(" | ")
@@ -99,7 +82,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	screen.Fill(BACKGROUND_COLOR)
 
 	for i := 0; i < boardSize+1; i++ {
-	for n := 0; n < boardSize; n++ {
+		for n := 0; n < boardSize; n++ {
 			line := ebiten.NewImage(3, 153)
 			line.Fill(color.Black)
 			op := &ebiten.DrawImageOptions{}
@@ -121,7 +104,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	for i := 0; i < boardSize; i++ {
 		for n := 0; n < boardSize; n++ {
-			if g.tiles[i+n].value != 0 {
+			if g.tiles[i][n].value != 0 {
 				tile := ebiten.NewImage(tileSize-4, tileSize-4)
 				tile.Fill(COLOR2)
 				op := &ebiten.DrawImageOptions{}
@@ -131,7 +114,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 				optext := &text.DrawOptions{}
 				optext.GeoM.Translate(float64(i*tileSize+tileSpacing+45), float64(n*tileSize+tileSpacing+15))
 				optext.ColorScale.ScaleWithColor(color.Black)
-				text.Draw(screen, strconv.Itoa(g.tiles[i+n].value), &text.GoTextFace{
+				text.Draw(screen, strconv.Itoa(g.tiles[i][n].value), &text.GoTextFace{
 					Source: mplusFaceSource,
 					Size:   float64(fontSize),
 				}, optext)
