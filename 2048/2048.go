@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"image/color"
 	"log"
+	"math/rand"
 	"strconv"
 
 	"github.com/hajimehoshi/ebiten/examples/resources/fonts"
@@ -54,7 +55,7 @@ func (g *Game) initBoard() {
 	for i := 0; i < boardSize; i++ {
 		tls := make([]Tile, 4)
 		for n := 0; n < boardSize; n++ {
-			tls[n] = Tile{value: 2, x: i, y: n}
+			tls[n] = Tile{value: 0, x: i, y: n}
 		}
 		g.tiles[i] = tls
 	}
@@ -122,6 +123,57 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		}
 	}
 
+}
+
+func (g *Game) moveTile(x, y, w, z int) {
+	val := g.tiles[x][y].value
+	g.tiles[x][y].value = 0
+	g.tiles[w][z].value = val
+}
+
+func (g *Game) spawnTile() {
+	valid := false
+
+	for !valid {
+
+		x := rand.Intn(4)
+		y := rand.Intn(4)
+
+		val := func() int {
+			if rand.Intn(10) < 9 {
+				return 2
+			}
+			return 4
+		}()
+
+		if g.tiles[x][y].value == 0 {
+			valid = true
+			g.tiles[x][y].value = val
+		}
+	}
+
+}
+
+func (g *Game) checkWin() bool {
+	for i := 0; i < boardSize; i++ {
+		for n := 0; n < boardSize; n++ {
+			if g.tiles[i][n].hasMaxValue() {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func (g *Game) checkGameOver() bool {
+	for i := 0; i < boardSize; i++ {
+		for n := 0; n < boardSize; n++ {
+			if !g.tiles[i][n].hasValue() {
+				return false
+			}
+		}
+	}
+	return true
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
