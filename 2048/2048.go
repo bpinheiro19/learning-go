@@ -10,11 +10,13 @@ import (
 
 	"github.com/hajimehoshi/ebiten/examples/resources/fonts"
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 )
 
 type Game struct {
 	tiles [][]Tile
+	keys  []ebiten.Key
 }
 
 const (
@@ -76,7 +78,39 @@ func (g *Game) printBoard() {
 }
 
 func (g *Game) Update() error {
+
+	if repeatingKeyPressed(ebiten.KeyUp) {
+		g.spawnTile()
+	}
+
+	if repeatingKeyPressed(ebiten.KeyDown) {
+		g.spawnTile()
+	}
+
+	if repeatingKeyPressed(ebiten.KeyLeft) {
+		g.spawnTile()
+	}
+
+	if repeatingKeyPressed(ebiten.KeyRight) {
+		g.spawnTile()
+	}
+
+	//g.keys = inpututil.AppendPressedKeys(g.keys[:0])
+	/*
+		for _, p := range g.keys {
+			if p == ebiten.KeyUp {
+				g.spawnTile()
+			}
+			fmt.Println(p)
+
+		}*/
+
 	return nil
+}
+
+func repeatingKeyPressed(key ebiten.Key) bool {
+	d := inpututil.KeyPressDuration(key)
+	return d >= 1 && d < 2
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
