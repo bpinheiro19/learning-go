@@ -69,7 +69,7 @@ func (g *Game) printBoard() {
 	for i := 0; i < boardSize; i++ {
 		for n := 0; n < boardSize; n++ {
 			fmt.Print(" | ")
-			fmt.Print(g.tiles[i][n].value)
+			fmt.Print(g.tiles[n][i].value)
 
 		}
 		fmt.Println(" | ")
@@ -77,22 +77,90 @@ func (g *Game) printBoard() {
 	fmt.Println(" ----------------- ")
 }
 
+func (g *Game) moveTile(x, y, w, z int) {
+	val := g.tiles[x][y].value
+	g.tiles[x][y].value = 0
+	g.tiles[w][z].value = val
+}
+
+func (g *Game) spawnTile() {
+	availableZero := false
+
+	for i := 0; i < boardSize; i++ {
+		for n := 0; n < boardSize; n++ {
+			if g.tiles[i][n].value == 0 {
+				availableZero = true
+			}
+		}
+	}
+
+	for availableZero {
+
+		x := rand.Intn(4)
+		y := rand.Intn(4)
+
+		val := func() int {
+			if rand.Intn(10) < 9 {
+				return 2
+			}
+			return 4
+		}()
+
+		if g.tiles[x][y].value == 0 {
+			availableZero = false
+			g.tiles[x][y].value = val
+		}
+	}
+
+}
+
+func (g *Game) checkWin() bool {
+	for i := 0; i < boardSize; i++ {
+		for n := 0; n < boardSize; n++ {
+			if g.tiles[i][n].hasMaxValue() {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func (g *Game) checkGameOver() bool {
+	for i := 0; i < boardSize; i++ {
+		for n := 0; n < boardSize; n++ {
+			if !g.tiles[i][n].hasValue() {
+				return false
+			}
+		}
+	}
+	return true
+}
+
+func repeatingKeyPressed(key ebiten.Key) bool {
+	d := inpututil.KeyPressDuration(key)
+	return d >= 1 && d < 2
+}
+
 func (g *Game) Update() error {
 
 	if repeatingKeyPressed(ebiten.KeyUp) {
 		g.spawnTile()
+		g.printBoard()
 	}
 
 	if repeatingKeyPressed(ebiten.KeyDown) {
 		g.spawnTile()
+		g.printBoard()
 	}
 
 	if repeatingKeyPressed(ebiten.KeyLeft) {
 		g.spawnTile()
+		g.printBoard()
 	}
 
 	if repeatingKeyPressed(ebiten.KeyRight) {
 		g.spawnTile()
+		g.printBoard()
 	}
 
 	//g.keys = inpututil.AppendPressedKeys(g.keys[:0])
@@ -106,11 +174,6 @@ func (g *Game) Update() error {
 		}*/
 
 	return nil
-}
-
-func repeatingKeyPressed(key ebiten.Key) bool {
-	d := inpututil.KeyPressDuration(key)
-	return d >= 1 && d < 2
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
@@ -157,57 +220,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		}
 	}
 
-}
-
-func (g *Game) moveTile(x, y, w, z int) {
-	val := g.tiles[x][y].value
-	g.tiles[x][y].value = 0
-	g.tiles[w][z].value = val
-}
-
-func (g *Game) spawnTile() {
-	valid := false
-
-	for !valid {
-
-		x := rand.Intn(4)
-		y := rand.Intn(4)
-
-		val := func() int {
-			if rand.Intn(10) < 9 {
-				return 2
-			}
-			return 4
-		}()
-
-		if g.tiles[x][y].value == 0 {
-			valid = true
-			g.tiles[x][y].value = val
-		}
-	}
-
-}
-
-func (g *Game) checkWin() bool {
-	for i := 0; i < boardSize; i++ {
-		for n := 0; n < boardSize; n++ {
-			if g.tiles[i][n].hasMaxValue() {
-				return true
-			}
-		}
-	}
-	return false
-}
-
-func (g *Game) checkGameOver() bool {
-	for i := 0; i < boardSize; i++ {
-		for n := 0; n < boardSize; n++ {
-			if !g.tiles[i][n].hasValue() {
-				return false
-			}
-		}
-	}
-	return true
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
