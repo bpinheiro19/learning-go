@@ -136,6 +136,100 @@ func (g *Game) checkGameOver() bool {
 	return true
 }
 
+func (g *Game) moveTilesUp() {
+	for n := 0; n < boardSize; n++ {
+		i := 0
+		for i < 4 {
+			val := g.tiles[i][n].value
+			if val != 0 && i-1 >= 0 {
+
+				if !(g.tiles[i-1][n].hasValue()) {
+					g.moveTile(i, n, i-1, n)
+					i -= 2
+				} else {
+					if g.tiles[i][n].value == g.tiles[i-1][n].value {
+						g.tiles[i-1][n].value = 2 * g.tiles[i][n].value
+						g.tiles[i][n].value = 0
+					}
+				}
+
+			}
+			i++
+		}
+	}
+}
+
+func (g *Game) moveTilesDown() {
+	for n := 0; n < boardSize; n++ {
+		i := 3
+		for i >= 0 {
+			val := g.tiles[i][n].value
+			if val != 0 && i+1 < 4 {
+
+				if !(g.tiles[i+1][n].hasValue()) {
+					g.moveTile(i, n, i+1, n)
+					i -= 2
+				} else {
+					if g.tiles[i][n].value == g.tiles[i+1][n].value {
+						g.tiles[i+1][n].value = 2 * g.tiles[i][n].value
+						g.tiles[i][n].value = 0
+					}
+				}
+
+			}
+			i--
+		}
+	}
+}
+
+func (g *Game) moveTilesRight() {
+	for i := 0; i < boardSize; i++ {
+		n := 3
+		for n >= 0 {
+			val := g.tiles[i][n].value
+			if val != 0 && n+1 < 4 {
+				if !(g.tiles[i][n+1].hasValue()) {
+					g.moveTile(i, n, i, n+1)
+					n += 2
+				} else {
+					if g.tiles[i][n].value == g.tiles[i][n+1].value {
+						g.tiles[i][n+1].value = 2 * g.tiles[i][n].value
+						g.tiles[i][n].value = 0
+					}
+				}
+
+			}
+			n--
+		}
+	}
+}
+
+func (g *Game) moveTilesLeft() {
+	for i := 0; i < boardSize; i++ {
+		n := 0
+		for n < 4 {
+			val := g.tiles[i][n].value
+			if val != 0 && n-1 >= 0 {
+
+				if !(g.tiles[i][n-1].hasValue()) {
+					fmt.Println(i, n, i, n-1)
+					g.moveTile(i, n, i, n-1)
+					n -= 2
+				} else {
+					if g.tiles[i][n].value == g.tiles[i][n-1].value {
+						fmt.Println(g.tiles[i][n].value)
+						g.tiles[i][n-1].value = 2 * g.tiles[i][n].value
+						g.tiles[i][n].value = 0
+						fmt.Println(g.tiles[i][n-1].value)
+					}
+				}
+
+			}
+			n++
+		}
+	}
+}
+
 func repeatingKeyPressed(key ebiten.Key) bool {
 	d := inpututil.KeyPressDuration(key)
 	return d >= 1 && d < 2
