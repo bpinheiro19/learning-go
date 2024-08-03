@@ -15,8 +15,9 @@ import (
 )
 
 type Game struct {
-	tiles [][]Tile
-	keys  []ebiten.Key
+	tiles    [][]Tile
+	keys     []ebiten.Key
+	gameover bool
 }
 
 const (
@@ -40,6 +41,7 @@ func newGame() *Game {
 	game.init()
 	game.initBoard()
 	game.printBoard()
+	game.gameover = false
 	return game
 }
 
@@ -69,8 +71,7 @@ func (g *Game) printBoard() {
 	for i := 0; i < boardSize; i++ {
 		for n := 0; n < boardSize; n++ {
 			fmt.Print(" | ")
-			fmt.Print(g.tiles[n][i].value)
-
+			fmt.Print(g.tiles[i][n].value)
 		}
 		fmt.Println(" | ")
 	}
@@ -237,24 +238,41 @@ func repeatingKeyPressed(key ebiten.Key) bool {
 
 func (g *Game) Update() error {
 
-	if repeatingKeyPressed(ebiten.KeyUp) {
-		g.spawnTile()
-		g.printBoard()
-	}
+	if !g.gameover {
 
-	if repeatingKeyPressed(ebiten.KeyDown) {
-		g.spawnTile()
-		g.printBoard()
-	}
+		if g.checkWin() {
+			//Todo Win screen
+			g.gameover = true
+			fmt.Println("You Win!!")
+		} else if g.checkGameOver() {
+			//Todo gameover screen
+			g.gameover = true
+			fmt.Println("You lose!")
+		}
 
-	if repeatingKeyPressed(ebiten.KeyLeft) {
-		g.spawnTile()
-		g.printBoard()
-	}
+		if repeatingKeyPressed(ebiten.KeyUp) {
+			g.moveTilesUp()
+			g.spawnTile()
+			g.printBoard()
+		}
 
-	if repeatingKeyPressed(ebiten.KeyRight) {
-		g.spawnTile()
-		g.printBoard()
+		if repeatingKeyPressed(ebiten.KeyDown) {
+			g.moveTilesDown()
+			g.spawnTile()
+			g.printBoard()
+		}
+
+		if repeatingKeyPressed(ebiten.KeyLeft) {
+			g.moveTilesLeft()
+			g.spawnTile()
+			g.printBoard()
+		}
+
+		if repeatingKeyPressed(ebiten.KeyRight) {
+			g.moveTilesRight()
+			g.spawnTile()
+			g.printBoard()
+		}
 	}
 
 	//g.keys = inpututil.AppendPressedKeys(g.keys[:0])
@@ -300,11 +318,11 @@ func (g *Game) Draw(screen *ebiten.Image) {
 				tile := ebiten.NewImage(tileSize-4, tileSize-4)
 				tile.Fill(COLOR2)
 				op := &ebiten.DrawImageOptions{}
-				op.GeoM.Translate(float64(i*tileSize+tileSpacing+3), float64(n*tileSize+tileSpacing+3))
+				op.GeoM.Translate(float64(n*tileSize+tileSpacing+3), float64(i*tileSize+tileSpacing+3))
 				screen.DrawImage(tile, op)
 
 				optext := &text.DrawOptions{}
-				optext.GeoM.Translate(float64(i*tileSize+tileSpacing+45), float64(n*tileSize+tileSpacing+15))
+				optext.GeoM.Translate(float64(n*tileSize+tileSpacing+45), float64(i*tileSize+tileSpacing+15))
 				optext.ColorScale.ScaleWithColor(color.Black)
 				text.Draw(screen, strconv.Itoa(g.tiles[i][n].value), &text.GoTextFace{
 					Source: mplusFaceSource,
