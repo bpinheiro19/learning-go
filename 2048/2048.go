@@ -28,8 +28,6 @@ const (
 	tileSize    = 150
 	tileMargin  = 160
 	tileSpacing = 50
-
-	fontSize = 90
 )
 
 var (
@@ -126,6 +124,8 @@ func (g *Game) checkWin() bool {
 	return false
 }
 
+// todo Fix Gameover logic. Currently only checks for not having zeros. can still play with possible combinations of squares.
+// Check if movement is available even with no zeros available.
 func (g *Game) checkGameOver() bool {
 	for i := 0; i < boardSize; i++ {
 		for n := 0; n < boardSize; n++ {
@@ -288,9 +288,7 @@ func (g *Game) Update() error {
 	return nil
 }
 
-func (g *Game) Draw(screen *ebiten.Image) {
-	screen.Fill(BACKGROUND_COLOR)
-
+func DrawBoardLines(screen *ebiten.Image) {
 	for i := 0; i < boardSize+1; i++ {
 		for n := 0; n < boardSize; n++ {
 			line := ebiten.NewImage(3, 153)
@@ -298,7 +296,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			op := &ebiten.DrawImageOptions{}
 			op.GeoM.Translate(float64(i*tileSize+tileSpacing), float64(n*tileSize+tileSpacing))
 			screen.DrawImage(line, op)
-
 		}
 	}
 
@@ -311,26 +308,40 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			screen.DrawImage(line, op)
 		}
 	}
+}
 
+func (g *Game) DrawTiles(screen *ebiten.Image) {
 	for i := 0; i < boardSize; i++ {
 		for n := 0; n < boardSize; n++ {
-			if g.tiles[i][n].value != 0 {
-				tile := ebiten.NewImage(tileSize-4, tileSize-4)
-				tile.Fill(COLOR2)
+			tile := g.tiles[i][n]
+			if tile.value != 0 {
+
+				col, fontsize, x, y := tile.GetTileConfig()
+
+				tileImage := ebiten.NewImage(tileSize-4, tileSize-4)
+				tileImage.Fill(col)
 				op := &ebiten.DrawImageOptions{}
 				op.GeoM.Translate(float64(n*tileSize+tileSpacing+3), float64(i*tileSize+tileSpacing+3))
-				screen.DrawImage(tile, op)
+				screen.DrawImage(tileImage, op)
 
 				optext := &text.DrawOptions{}
-				optext.GeoM.Translate(float64(n*tileSize+tileSpacing+45), float64(i*tileSize+tileSpacing+15))
+
+				optext.GeoM.Translate(float64(n*tileSize+tileSpacing+x), float64(i*tileSize+tileSpacing+y))
 				optext.ColorScale.ScaleWithColor(color.Black)
-				text.Draw(screen, strconv.Itoa(g.tiles[i][n].value), &text.GoTextFace{
+				text.Draw(screen, strconv.Itoa(tile.value), &text.GoTextFace{
 					Source: mplusFaceSource,
-					Size:   float64(fontSize),
+					Size:   float64(fontsize),
 				}, optext)
 			}
 		}
 	}
+}
+
+func (g *Game) Draw(screen *ebiten.Image) {
+	screen.Fill(BACKGROUND_COLOR)
+
+	DrawBoardLines(screen)
+	g.DrawTiles(screen)
 
 }
 
