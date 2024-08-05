@@ -16,8 +16,9 @@ import (
 
 type Game struct {
 	tiles    [][]Tile
-	keys     []ebiten.Key
+	running  bool
 	gameover bool
+	win      bool
 }
 
 const (
@@ -39,7 +40,9 @@ func newGame() *Game {
 	game.init()
 	game.initBoard()
 	game.printBoard()
+	game.running = true
 	game.gameover = false
+	game.win = false
 	return game
 }
 
@@ -238,52 +241,44 @@ func repeatingKeyPressed(key ebiten.Key) bool {
 
 func (g *Game) Update() error {
 
-	if !g.gameover {
+	if g.running {
 
-		if g.checkWin() {
-			//Todo Win screen
-			g.gameover = true
-			fmt.Println("You Win!!")
-		} else if g.checkGameOver() {
-			//Todo gameover screen
-			g.gameover = true
-			fmt.Println("You lose!")
+		if g.gameover || g.win {
+			g.running = false
 		}
 
 		if repeatingKeyPressed(ebiten.KeyUp) {
 			g.moveTilesUp()
 			g.spawnTile()
 			g.printBoard()
+			g.gameover = g.checkGameOver()
+			g.win = g.checkWin()
 		}
 
 		if repeatingKeyPressed(ebiten.KeyDown) {
 			g.moveTilesDown()
 			g.spawnTile()
 			g.printBoard()
+			g.gameover = g.checkGameOver()
+			g.win = g.checkWin()
 		}
 
 		if repeatingKeyPressed(ebiten.KeyLeft) {
 			g.moveTilesLeft()
 			g.spawnTile()
 			g.printBoard()
+			g.gameover = g.checkGameOver()
+			g.win = g.checkWin()
 		}
 
 		if repeatingKeyPressed(ebiten.KeyRight) {
 			g.moveTilesRight()
 			g.spawnTile()
 			g.printBoard()
+			g.gameover = g.checkGameOver()
+			g.win = g.checkWin()
 		}
 	}
-
-	//g.keys = inpututil.AppendPressedKeys(g.keys[:0])
-	/*
-		for _, p := range g.keys {
-			if p == ebiten.KeyUp {
-				g.spawnTile()
-			}
-			fmt.Println(p)
-
-		}*/
 
 	return nil
 }
@@ -340,8 +335,11 @@ func (g *Game) DrawTiles(screen *ebiten.Image) {
 func (g *Game) Draw(screen *ebiten.Image) {
 	screen.Fill(BACKGROUND_COLOR)
 
-	DrawBoardLines(screen)
-	g.DrawTiles(screen)
+	if g.running {
+		DrawBoardLines(screen)
+		g.DrawTiles(screen)
+
+	}
 
 }
 
