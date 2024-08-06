@@ -278,6 +278,15 @@ func (g *Game) Update() error {
 			g.gameover = g.checkGameOver()
 			g.win = g.checkWin()
 		}
+
+	} else {
+		//Restart Game
+		if repeatingKeyPressed(ebiten.KeyEnter) {
+			g.initBoard()
+			g.running = true
+			g.gameover = false
+			g.win = false
+		}
 	}
 
 	return nil
@@ -332,6 +341,40 @@ func (g *Game) DrawTiles(screen *ebiten.Image) {
 	}
 }
 
+func DrawGameOverScreen(screen *ebiten.Image) {
+	optext := &text.DrawOptions{}
+
+	optext.GeoM.Translate(float64(120), float64(200))
+	optext.ColorScale.ScaleWithColor(color.Black)
+	text.Draw(screen, "Game Over", &text.GoTextFace{
+		Source: mplusFaceSource,
+		Size:   float64(90),
+	}, optext)
+
+	optext.GeoM.Translate(float64(35), float64(200))
+	text.Draw(screen, "Press Enter to restart the game", &text.GoTextFace{
+		Source: mplusFaceSource,
+		Size:   float64(25),
+	}, optext)
+}
+
+func DrawWinScreen(screen *ebiten.Image) {
+	optext := &text.DrawOptions{}
+
+	optext.GeoM.Translate(float64(160), float64(200))
+	optext.ColorScale.ScaleWithColor(color.Black)
+	text.Draw(screen, "You Win!", &text.GoTextFace{
+		Source: mplusFaceSource,
+		Size:   float64(90),
+	}, optext)
+
+	optext.GeoM.Translate(float64(0), float64(200))
+	text.Draw(screen, "Press Enter to restart the game", &text.GoTextFace{
+		Source: mplusFaceSource,
+		Size:   float64(25),
+	}, optext)
+}
+
 func (g *Game) Draw(screen *ebiten.Image) {
 	screen.Fill(BACKGROUND_COLOR)
 
@@ -339,6 +382,11 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		DrawBoardLines(screen)
 		g.DrawTiles(screen)
 
+	} else if g.win {
+		DrawWinScreen(screen)
+
+	} else if g.gameover {
+		DrawGameOverScreen(screen)
 	}
 
 }
