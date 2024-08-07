@@ -127,8 +127,6 @@ func (g *Game) checkWin() bool {
 	return false
 }
 
-// todo Fix Gameover logic. Currently only checks for not having zeros. can still play with possible combinations of squares.
-// Check if movement is available even with no zeros available.
 func (g *Game) checkGameOver() bool {
 	for i := 0; i < boardSize; i++ {
 		for n := 0; n < boardSize; n++ {
@@ -137,7 +135,72 @@ func (g *Game) checkGameOver() bool {
 			}
 		}
 	}
-	return true
+
+	return !g.CanMoveUp() && !g.CanMoveDown() && !g.CanMoveRight() && !g.CanMoveLeft()
+}
+
+func (g *Game) CanMoveUp() bool {
+	for n := 0; n < boardSize; n++ {
+		i := 0
+		for i < 4 {
+			val := g.tiles[i][n].value
+			if val != 0 && i-1 >= 0 {
+				if g.tiles[i][n].value == g.tiles[i-1][n].value {
+					return true
+				}
+			}
+			i++
+		}
+	}
+	return false
+}
+
+func (g *Game) CanMoveDown() bool {
+	for n := 0; n < boardSize; n++ {
+		i := 3
+		for i >= 0 {
+			val := g.tiles[i][n].value
+			if val != 0 && i+1 < 4 {
+				if g.tiles[i][n].value == g.tiles[i+1][n].value {
+					return true
+				}
+			}
+			i--
+		}
+	}
+	return false
+}
+
+func (g *Game) CanMoveRight() bool {
+	for i := 0; i < boardSize; i++ {
+		n := 3
+		for n >= 0 {
+			val := g.tiles[i][n].value
+			if val != 0 && n+1 < 4 {
+				if g.tiles[i][n].value == g.tiles[i][n+1].value {
+					return true
+				}
+			}
+			n--
+		}
+	}
+	return false
+}
+
+func (g *Game) CanMoveLeft() bool {
+	for i := 0; i < boardSize; i++ {
+		n := 0
+		for n < 4 {
+			val := g.tiles[i][n].value
+			if val != 0 && n-1 >= 0 {
+				if g.tiles[i][n].value == g.tiles[i][n-1].value {
+					return true
+				}
+			}
+			n++
+		}
+	}
+	return false
 }
 
 func (g *Game) moveTilesUp() {
@@ -221,10 +284,8 @@ func (g *Game) moveTilesLeft() {
 					n -= 2
 				} else {
 					if g.tiles[i][n].value == g.tiles[i][n-1].value {
-						fmt.Println(g.tiles[i][n].value)
 						g.tiles[i][n-1].value = 2 * g.tiles[i][n].value
 						g.tiles[i][n].value = 0
-						fmt.Println(g.tiles[i][n-1].value)
 					}
 				}
 
