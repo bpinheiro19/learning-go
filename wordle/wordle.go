@@ -11,7 +11,7 @@ import (
 
 type Game struct {
 	mplusFaceSource *text.GoTextFaceSource
-	board           [][]byte
+	board           [][]Tile
 	running         bool
 	gameover        bool
 	win             bool
@@ -27,6 +27,8 @@ const (
 func newGame() *Game {
 	game := &Game{}
 	game.init()
+	game.initBoard()
+	game.printBoard()
 	game.running = true
 	game.gameover = false
 	game.win = false
