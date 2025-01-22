@@ -1,4 +1,4 @@
-module sdktest
+module arm
 
 go 1.22.4
 

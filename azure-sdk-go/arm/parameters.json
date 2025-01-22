@@ -1,0 +1,47 @@
+{
+    "apiVersion": {
+        "value": "2023-10-01"
+    },
+    "clusterName": {
+        "value": "aks"
+    },
+    "location": {
+        "value": "swedencentral"
+    },
+    "kubernetesVersion": {
+        "value": "1.30.7"
+    },
+    "dnsPrefix": {
+        "value": "aks-dns"
+    },
+    "osDiskSizeGB": {
+        "value": 0
+    },
+    "agentCount": {
+        "value": 2
+    },
+    "agentVMSize": {
+        "value": "standard_d2s_v3"
+    },
+    "networkPlugin": {
+        "value": "azure"
+    },
+    "networkPluginMode": {
+        "value": ""
+    },
+    "loadBalancerSku": {
+        "value": "Standard"
+    },
+    "networkDataplane": {
+        "value": ""
+    },
+    "networkPolicy": {
+        "value": ""
+    },
+    "serviceCidr": {
+        "value": ""
+    },
+    "dnsServiceIP": {
+        "value": ""
+    }
+}

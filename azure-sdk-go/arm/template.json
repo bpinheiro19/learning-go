@@ -1,0 +1,160 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "apiVersion": {
+            "type": "string",
+            "defaultValue": "2023-10-01"
+        },
+        "clusterName": {
+            "type": "string",
+            "defaultValue": "aks",
+            "metadata": {
+                "description": "The name of the Managed Cluster resource."
+            }
+        },
+        "location": {
+            "type": "string",
+            "defaultValue": "[resourceGroup().location]",
+            "metadata": {
+                "description": "The location of the Managed Cluster resource."
+            }
+        },
+        "kubernetesVersion": {
+            "type": "string",
+            "defaultValue": "1.30.7",
+            "metadata": {
+                "description": "The version of Kubernetes."
+            }
+        },
+        "dnsPrefix": {
+            "type": "string",
+            "defaultValue": "aks-dns",
+            "metadata": {
+                "description": "Optional DNS prefix to use with hosted Kubernetes API server FQDN."
+            }
+        },
+        "osDiskSizeGB": {
+            "type": "int",
+            "defaultValue": 0,
+            "minValue": 0,
+            "maxValue": 1023,
+            "metadata": {
+                "description": "Disk size (in GB) to provision for each of the agent pool nodes. This value ranges from 0 to 1023. Specifying 0 will apply the default disk size for that agentVMSize."
+            }
+        },
+        "agentCount": {
+            "type": "int",
+            "defaultValue": 2,
+            "minValue": 1,
+            "maxValue": 50,
+            "metadata": {
+                "description": "The number of nodes for the cluster."
+            }
+        },
+        "agentVMSize": {
+            "type": "string",
+            "defaultValue": "standard_d2s_v3",
+            "metadata": {
+                "description": "The size of the Virtual Machine."
+            }
+        },
+        "networkPlugin": {
+            "defaultValue": "azure",
+            "type": "string",
+            "allowedValues": [
+                "azure",
+                "kubenet"
+            ],
+            "metadata": {
+                "description": "Network plugin used for building the Kubernetes network."
+            }
+        },
+        "networkPluginMode": {
+            "defaultValue": "",
+            "type": "string",
+            "metadata": {
+                "description": "Network plugin mode used for building the Kubernetes network."
+            }
+        },
+        "loadBalancerSku": {
+            "defaultValue": "Standard",
+            "type": "string",
+            "allowedValues": [
+                "Basic",
+                "Standard"
+            ],
+            "metadata": {
+                "description": "Specifies the sku of the load balancer used by the virtual machine scale sets used by node pools."
+            }
+        },
+        "networkDataplane": {
+            "defaultValue": "",
+            "type": "string",
+            "metadata": {
+                "description": "Network dataplane used in the Kubernetes cluster."
+            }
+        },
+        "networkPolicy": {
+            "defaultValue": "",
+            "type": "string",
+            "metadata": {
+                "description": "Network policy used for building the Kubernetes network."
+            }
+        },
+        "serviceCidr": {
+            "defaultValue": "",
+            "type": "string",
+            "metadata": {
+                "description": "A CIDR notation IP range from which to assign service cluster IPs."
+            }
+        },
+        "dnsServiceIP": {
+            "defaultValue": "",
+            "type": "string",
+            "metadata": {
+                "description": "Containers DNS server IP address."
+            }
+        }
+    },
+    "resources": [
+        {
+            "type": "Microsoft.ContainerService/managedClusters",
+            "apiVersion": "[parameters('apiVersion')]",
+            "name": "[parameters('clusterName')]",
+            "location": "[parameters('location')]",
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "kubernetesVersion": "[parameters('kubernetesVersion')]",
+                "dnsPrefix": "[parameters('dnsPrefix')]",
+                "agentPoolProfiles": [
+                    {
+                        "name": "agentpool",
+                        "osDiskSizeGB": "[parameters('osDiskSizeGB')]",
+                        "count": "[parameters('agentCount')]",
+                        "vmSize": "[parameters('agentVMSize')]",
+                        "osType": "Linux",
+                        "mode": "System"
+                    }
+                ],
+                "networkProfile": {
+                    "loadBalancerSku": "[parameters('loadBalancerSku')]",
+                    "networkPlugin": "[parameters('networkPlugin')]",
+                    "networkPluginMode": "[parameters('networkPluginMode')]",
+                    "networkDataplane": "[parameters('networkDataplane')]",
+                    "networkPolicy": "[parameters('networkPolicy')]",
+                    "serviceCidr": "[parameters('serviceCidr')]",
+                    "dnsServiceIP": "[parameters('dnsServiceIP')]"
+                }
+            }
+        }
+    ],
+    "outputs": {
+        "controlPlaneFQDN": {
+            "type": "string",
+            "value": "[reference(resourceId('Microsoft.ContainerService/managedClusters', parameters('clusterName')), '2024-02-01').fqdn]"
+        }
+    }
+}
