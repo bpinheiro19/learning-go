@@ -4,11 +4,11 @@ import "image/color"
 
 type Tile struct {
 	letter Letter
+	color  color.RGBA
 }
 
 type Letter struct {
 	value byte
-	color color.RGBA
 }
 
 func (t *Tile) isValid() bool {
@@ -16,13 +16,13 @@ func (t *Tile) isValid() bool {
 }
 
 func (t *Tile) setGreenColor() {
-	t.letter.color = COLOR_GREEN
+	t.color = COLOR_GREEN
 }
 
 func (t *Tile) setYellowColor() {
-	t.letter.color = COLOR_YELLOW
+	t.color = COLOR_YELLOW
 }
 
 func (t *Tile) setGrayColor() {
-	t.letter.color = COLOR_GREY
+	t.color = COLOR_GREY
 }
