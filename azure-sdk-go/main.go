@@ -33,8 +33,11 @@ func main() {
 	credential := getAzureCredential()
 
 	createResourceGroupClient(subscriptionId, credential)
+	createContainerServiceClient(subscriptionId, credential)
 
 	createResourceGroup(resourceGroupName)
+
+	createAKSCluster(resourceGroupName)
 
 	deleteResourceGroup(resourceGroupName)
 }

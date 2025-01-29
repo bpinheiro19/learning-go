@@ -32,6 +32,7 @@ func getResourceGroup(resourceGroupName string) string {
 }
 
 func createResourceGroup(resourceGroupName string) {
+	log.Printf("Creating Resource Group %s", resourceGroupName)
 	resourceGroup, err := resourceGroupClient.CreateOrUpdate(context.Background(), resourceGroupName, armresources.ResourceGroup{
 		Location: to.Ptr(location),
 	}, nil)
@@ -43,6 +44,7 @@ func createResourceGroup(resourceGroupName string) {
 }
 
 func deleteResourceGroup(resourceGroupName string) {
+	log.Printf("Deleting Resource Group %s", resourceGroupName)
 	pollerResp, err := resourceGroupClient.BeginDelete(context.Background(), resourceGroupName, nil)
 	if err != nil {
 		log.Fatalf("Failed to delete resource group: %v", err)
